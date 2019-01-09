@@ -1,0 +1,68 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+def deployVersion = SNAPSHOT_VERSION
+if (System.getProperty('deploy') == 'snapshot') {
+    deployVersion = SNAPSHOT_VERSION
+} else if (System.getProperty('deploy') == 'release') {
+    deployVersion = RELEASE_VERSION
+}
+
+group GROUP
+version deployVersion
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/central/' }
+    maven { url 'https://maven.aliyun.com/repository/jcenter' }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile gradleApi()
+    compile localGroovy()
+
+    // Transform API
+    compile 'com.android.tools.build:gradle:3.1.4'
+
+    // 字节码修改
+//    compile 'javassist:javassist:3.12.1.GA'
+
+    compile 'org.ow2.asm:asm:6.0'
+    compile 'org.ow2.asm:asm-commons:6.0'
+
+    testCompile 'junit:junit:4.12'
+}
+
+compileGroovy {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    options.encoding = 'UTF-8'
+}
+
+sourceSets {
+    main.groovy.srcDirs = [ 'src/main/groovy' ]
+    test.groovy.srcDirs = [ 'src/test/groovy' ]
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.project {
+                groupId GROUP
+                artifactId ARTIFACT
+                version deployVersion
+                packaging 'jar'
+            }
+
+            repository(url:MAVEN_RELEASE_REPO) {
+                authentication(userName:MAVEN_USERNAME, password:MAVEN_PASSWORD)
+            }
+
+            snapshotRepository(url:MAVEN_SNAPSHOT_REPO) {
+                authentication(userName:MAVEN_USERNAME, password:MAVEN_PASSWORD)
+            }
+        }
+    }
+}
