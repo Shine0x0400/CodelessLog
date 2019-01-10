@@ -23,9 +23,7 @@ buildscript {
 2. 在app级别build.gradle文件中应用插件：
 
 ```
-import com.zjl.log.codeless.LogPlugin
-
-apply plugin: LogPlugin
+apply plugin: 'com.zjl.log.codeless'
 // 无痕埋点配置
 CodelessLog {
     // 控制是否打印插桩日志
